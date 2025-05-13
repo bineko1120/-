@@ -1,0 +1,58 @@
+Sub フィルター表示行を複数シートからコピー()
+
+    Dim ws As Worksheet
+    Dim newWs As Worksheet
+    Dim visRange As Range
+    Dim lastRow As Long
+    Dim lastCol As Long
+    Dim sName As String
+
+    For Each ws In ActiveWindow.SelectedSheets
+        ' 最終行・最終列を取得
+        lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+
+        On Error Resume Next
+        Set visRange = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol)).SpecialCells(xlCellTypeVisible)
+        If Err.Number <> 0 Then
+            MsgBox "シート '" & ws.Name & "' に表示行がありません。スキップします。"
+            Err.Clear
+            On Error GoTo 0
+            GoTo SkipNext
+        End If
+        On Error GoTo 0
+
+        ' 新しいシートを元のすぐ後ろに追加
+        Set newWs = ThisWorkbook.Sheets.Add(After:=ws)
+        sName = ws.Name & "(2)"
+
+        ' 同名シートがすでにある場合は末尾に(3), (4)と追加
+        Dim n As Integer: n = 2
+        Do While SheetExists(sName)
+            n = n + 1
+            sName = ws.Name & "(" & n & ")"
+        Loop
+        newWs.Name = sName
+
+        ' 表示行をコピーして貼り付け
+        visRange.Copy Destination:=newWs.Range("A1")
+
+SkipNext:
+        Set visRange = Nothing
+        Set newWs = Nothing
+    Next ws
+
+    MsgBox "コピー完了しました。"
+
+End Sub
+
+Function SheetExists(name As String) As Boolean
+    Dim ws As Worksheet
+    SheetExists = False
+    For Each ws In ThisWorkbook.Sheets
+        If ws.Name = name Then
+            SheetExists = True
+            Exit Function
+        End If
+    Next
+End Function
