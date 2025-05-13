@@ -87,3 +87,71 @@ Sub 複数シートA列の文言を空白で分割()
     MsgBox "分割完了しました。"
 
 End Sub
+
+
+Sub フィルター表示行を1つの新ブックに集約コピー()
+
+    Dim ws As Worksheet
+    Dim visRange As Range
+    Dim lastRow As Long, lastCol As Long
+    Dim sName As String
+    Dim newWb As Workbook
+    Dim newWs As Worksheet
+
+    ' 新しいブックを1つだけ作成
+    Set newWb = Workbooks.Add(xlWBATWorksheet)
+    Application.DisplayAlerts = False
+    Do While newWb.Sheets.Count > 0
+        newWb.Sheets(1).Delete
+    Loop
+    Application.DisplayAlerts = True
+
+    For Each ws In ActiveWindow.SelectedSheets
+        ' 最終行・列の取得
+        lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+
+        ' 表示行だけ取得
+        On Error Resume Next
+        Set visRange = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol)).SpecialCells(xlCellTypeVisible)
+        If Err.Number <> 0 Or visRange Is Nothing Then
+            Err.Clear
+            On Error GoTo 0
+            GoTo SkipNext
+        End If
+        On Error GoTo 0
+
+        ' 新ブックにシートを追加
+        Set newWs = newWb.Sheets.Add(After:=newWb.Sheets(newWb.Sheets.Count))
+        sName = ws.Name
+
+        ' 同名チェック
+        Dim n As Integer: n = 1
+        Do While SheetExistsInBook(newWb, sName)
+            n = n + 1
+            sName = ws.Name & " (" & n & ")"
+        Loop
+        newWs.Name = sName
+
+        ' コピー
+        visRange.Copy Destination:=newWs.Range("A1")
+
+SkipNext:
+        Set visRange = Nothing
+        Set newWs = Nothing
+    Next ws
+
+    MsgBox "新しいブックにコピーが完了しました。"
+
+End Sub
+
+Function SheetExistsInBook(wb As Workbook, name As String) As Boolean
+    Dim s As Worksheet
+    SheetExistsInBook = False
+    For Each s In wb.Sheets
+        If s.Name = name Then
+            SheetExistsInBook = True
+            Exit Function
+        End If
+    Next
+End Function
