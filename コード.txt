@@ -56,3 +56,34 @@ Function SheetExists(name As String) As Boolean
         End If
     Next
 End Function
+
+Sub 複数シートA列の文言を空白で分割()
+
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim i As Long
+    Dim parts As Variant
+    Dim val As String
+
+    For Each ws In ActiveWindow.SelectedSheets
+        With ws
+            For Each cell In .Range("A2:A" & .Cells(.Rows.Count, 1).End(xlUp).Row).SpecialCells(xlCellTypeVisible)
+                val = Trim(cell.Value)
+                If val <> "" Then
+                    ' 複数空白を1つに正規化
+                    Do While InStr(val, "  ") > 0
+                        val = Replace(val, "  ", " ")
+                    Loop
+                    ' 分割して右隣に展開
+                    parts = Split(val, " ")
+                    For i = 0 To UBound(parts)
+                        cell.Offset(0, i + 1).Value = parts(i)
+                    Next i
+                End If
+            Next cell
+        End With
+    Next ws
+
+    MsgBox "分割完了しました。"
+
+End Sub
