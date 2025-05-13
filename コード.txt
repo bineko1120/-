@@ -155,3 +155,30 @@ Function SheetExistsInBook(wb As Workbook, name As String) As Boolean
         End If
     Next
 End Function
+
+Sub すべてのシートの1行目が空なら削除()
+
+    Dim ws As Worksheet
+    Dim lastCol As Long
+    Dim isEmpty As Boolean
+    Dim col As Long
+
+    For Each ws In ThisWorkbook.Sheets
+        With ws
+            lastCol = .Cells(1, .Columns.Count).End(xlToLeft).Column
+            isEmpty = True
+
+            For col = 1 To lastCol
+                If Trim(.Cells(1, col).Value) <> "" Then
+                    isEmpty = False
+                    Exit For
+                End If
+            Next col
+
+            If isEmpty Then .Rows(1).Delete
+        End With
+    Next ws
+
+    MsgBox "空の1行目を削除しました（ある場合のみ）"
+
+End Sub
