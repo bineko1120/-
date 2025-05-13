@@ -182,3 +182,26 @@ Sub すべてのシートの1行目が空なら削除()
     MsgBox "空の1行目を削除しました（ある場合のみ）"
 
 End Sub
+
+Sub ファイル数バイト数ヘッダー追加と列削除()
+
+    Dim ws As Worksheet
+
+    For Each ws In ActiveWorkbook.Sheets
+        With ws
+            ' 1行目を追加
+            .Rows(1).Insert Shift:=xlDown
+
+            ' A1とC1にラベルを追加
+            .Range("A1").Value = "ファイル数"
+            .Range("C1").Value = "バイト数"
+
+            ' D列 → 先に削除（列番号が変わるため）
+            .Columns("D").Delete
+            .Columns("B").Delete
+        End With
+    Next ws
+
+    MsgBox "全シートにヘッダーを追加し、B列とD列を削除しました。"
+
+End Sub
