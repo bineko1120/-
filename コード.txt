@@ -205,3 +205,36 @@ Sub ファイル数バイト数ヘッダー追加と列削除()
     MsgBox "全シートにヘッダーを追加し、B列とD列を削除しました。"
 
 End Sub
+
+Sub A列に拡張子フィルター（OR条件手動適用）
+
+    Dim ws As Worksheet
+    Dim rng As Range, cell As Range
+    Dim lastRow As Long
+
+    Set ws = ActiveSheet
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+    ' 一旦すべて表示（フィルター解除）
+    If ws.AutoFilterMode Then ws.AutoFilterMode = False
+
+    ' A列のデータ範囲
+    Set rng = ws.Range("A2:A" & lastRow)
+
+    ' すべての行を表示
+    ws.Rows.Hidden = False
+
+    ' 条件に合わない行を非表示（.txt/.xml/.html のいずれも含まない）
+    For Each cell In rng
+        If cell.EntireRow.Hidden = False Then
+            If InStr(cell.Value, ".txt") = 0 And _
+               InStr(cell.Value, ".xml") = 0 And _
+               InStr(cell.Value, ".html") = 0 Then
+                cell.EntireRow.Hidden = True
+            End If
+        End If
+    Next cell
+
+    MsgBox "拡張子フィルター適用（.txt / .xml / .html）"
+
+End Sub
