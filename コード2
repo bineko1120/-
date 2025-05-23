@@ -1,0 +1,32 @@
+Sub 結合セルの列範囲を取得()
+
+    Dim ws As Worksheet
+    Dim foundCell As Range
+    Dim searchText As String
+    Dim startCol As Long, endCol As Long
+
+    Set ws = ActiveSheet
+    searchText = "検索する文字列" ' ←ここを変更
+
+    Set foundCell = ws.Cells.Find(What:=searchText, LookIn:=xlValues, LookAt:=xlPart)
+
+    If Not foundCell Is Nothing Then
+        If foundCell.MergeCells Then
+            With foundCell.MergeArea
+                startCol = .Column
+                endCol = .Columns(.Columns.Count).Column
+            End With
+        Else
+            startCol = foundCell.Column
+            endCol = foundCell.Column
+        End If
+
+        MsgBox "結合セルの列範囲：" & _
+               ws.Cells(1, startCol).Address(False, False) & " ～ " & _
+               ws.Cells(1, endCol).Address(False, False) & vbCrLf & _
+               "（列番号：" & startCol & " ～ " & endCol & "）"
+    Else
+        MsgBox "対象の文字列は見つかりませんでした。"
+    End If
+
+End Sub
