@@ -30,3 +30,44 @@ Sub 結合セルの列範囲を取得()
     End If
 
 End Sub
+Sub MergeBlocksUsingRow7EndColumn()
+    Dim ws As Worksheet
+    Set ws = Worksheets("Sheet1") ' 適宜変更
+
+    Dim targetRow As Long: targetRow = 6
+    Dim baseRowForEnd As Long: baseRowForEnd = 7
+    Dim colStart As Long: colStart = 3 ' C列
+
+    ' 7行目の最終列を取得
+    Dim colEnd As Long
+    colEnd = ws.Cells(baseRowForEnd, ws.Columns.Count).End(xlToLeft).Column
+
+    Dim currentCol As Long
+    currentCol = colStart
+
+    Do While currentCol <= colEnd
+        Dim nextCol As Long
+        nextCol = currentCol + 1
+
+        ' 値があるセルを見つけるまで右に進む（6行目を対象にチェック）
+        Do While nextCol <= colEnd
+            If ws.Cells(targetRow, nextCol).Value <> "" Then
+                Exit Do
+            End If
+            nextCol = nextCol + 1
+        Loop
+
+        Dim mergeEndCol As Long
+        mergeEndCol = IIf(nextCol > colEnd, colEnd, nextCol - 1)
+
+        ' 1セルだけの場合は結合しないようにチェック（任意）
+        If mergeEndCol > currentCol Then
+            With ws.Range(ws.Cells(targetRow, currentCol), ws.Cells(targetRow, mergeEndCol))
+                .UnMerge
+                .Merge
+            End With
+        End If
+
+        currentCol = nextCol
+    Loop
+End Sub
