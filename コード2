@@ -71,3 +71,28 @@ Sub MergeBlocksUsingRow7EndColumn()
         currentCol = nextCol
     Loop
 End Sub
+
+Sub MergeEachColumnBasedOnD2()
+    Dim ws As Worksheet
+    Set ws = Worksheets("Sheet1") ' 適宜変更
+
+    Dim startCol As Long: startCol = 4 ' D列
+
+    ' D2の結合範囲から最終列を取得
+    Dim endCol As Long
+    With ws.Range("D2")
+        If .MergeCells Then
+            endCol = .MergeArea.Columns(.MergeArea.Columns.Count).Column
+        Else
+            endCol = .Column
+        End If
+    End With
+
+    Dim col As Long
+    For col = startCol To endCol
+        With ws.Range(ws.Cells(5, col), ws.Cells(10, col))
+            .UnMerge
+            .Merge
+        End With
+    Next col
+End Sub
